@@ -1,11 +1,10 @@
-
 import React, { useState, useMemo, useEffect } from 'react';
-import { Sidebar } from './components/Sidebar';
-import { KPIs } from './components/KPIs';
-import { Charts } from './components/Charts';
-import { DataTable } from './components/DataTable';
-import { FinancialRecord } from './types';
-import { processRawData, getBackupData } from './utils/dataProcessor';
+import { Sidebar } from './components/Sidebar.tsx';
+import { KPIs } from './components/KPIs.tsx';
+import { Charts } from './components/Charts.tsx';
+import { DataTable } from './components/DataTable.tsx';
+import { FinancialRecord } from './types.ts';
+import { processRawData, getBackupData } from './utils/dataProcessor.ts';
 import { LayoutDashboard, Menu, X } from 'lucide-react';
 
 const App: React.FC = () => {
@@ -31,13 +30,12 @@ const App: React.FC = () => {
   };
 
   const handleFilterChange = (filters: {
-    years: string[]; // Ahora recibe un array de años
+    years: string[];
     client: string;
     classification: string;
     months: string[];
   }) => {
     const filtered = allData.filter((item) => {
-      // Si el array de años está vacío, asumimos "Todos", si no, verificamos inclusión
       const yearMatch = filters.years.length === 0 || filters.years.includes(item.año.toString());
       const clientMatch = filters.client === 'all' || item['nombre cliente'] === filters.client;
       const classMatch = filters.classification === 'all' || item.clasificacion === filters.classification;
@@ -49,7 +47,6 @@ const App: React.FC = () => {
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden text-slate-900">
-      {/* Sidebar con transiciones */}
       <div className={`fixed inset-y-0 left-0 z-30 transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:relative lg:translate-x-0 transition-all duration-300 ease-in-out`}>
         <Sidebar 
           allData={allData} 
@@ -60,9 +57,7 @@ const App: React.FC = () => {
         />
       </div>
 
-      {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-hidden w-full">
-        {/* Header */}
         <header className="bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between shadow-sm z-10">
           <div className="flex items-center gap-4">
             <button 
@@ -82,7 +77,7 @@ const App: React.FC = () => {
                 <LayoutDashboard className="text-white w-6 h-6" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-slate-800">Pilar Control Laboratorio</h1>
+                <h1 className="text-[22px] font-bold text-slate-800 leading-tight">Pilar Control Laboratorio</h1>
                 <p className="text-xs text-slate-500 font-medium">Panel de Rendimiento Empresarial</p>
               </div>
             </div>
@@ -99,7 +94,6 @@ const App: React.FC = () => {
           </div>
         </header>
 
-        {/* Dashboard Scrollable Area */}
         <div className="flex-1 overflow-y-auto p-8 space-y-8 no-scrollbar">
           {isLoading ? (
             <div className="flex items-center justify-center h-full">
@@ -107,13 +101,12 @@ const App: React.FC = () => {
             </div>
           ) : (
             <>
-              {/* Top Row: KPIs */}
               <KPIs data={filteredData} />
+              
+              <div className="w-full">
+                <Charts data={filteredData} />
+              </div>
 
-              {/* Middle Row: Trend Charts */}
-              <Charts data={filteredData} />
-
-              {/* Bottom Row: Detailed Table */}
               <div className="w-full">
                 <DataTable data={filteredData} />
               </div>
@@ -122,7 +115,6 @@ const App: React.FC = () => {
         </div>
       </main>
 
-      {/* Overlay para móviles cuando el sidebar está abierto */}
       {isSidebarOpen && (
         <div 
           className="fixed inset-0 bg-black/20 z-20 lg:hidden" 
