@@ -4,10 +4,11 @@ export interface User {
 }
 
 export const loginUser = async (username: string, password: string): Promise<{ success: boolean; user?: User; message?: string }> => {
-  const scriptUrl = import.meta.env.VITE_GOOGLE_SCRIPT_URL;
+  // Intentar obtener la URL de las variables de entorno o del localStorage
+  const scriptUrl = import.meta.env.VITE_GOOGLE_SCRIPT_URL || localStorage.getItem('google_script_url');
   
   if (!scriptUrl) {
-    return { success: false, message: "Configuración incompleta: Falta VITE_GOOGLE_SCRIPT_URL" };
+    return { success: false, message: "Configuración incompleta: Falta la URL del Script de Google. Configúrela en el icono de engranaje." };
   }
 
   try {

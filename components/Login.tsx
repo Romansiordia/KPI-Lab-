@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { Lock, User, Loader2, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Lock, User, Loader2, AlertCircle, Settings, Save, X } from 'lucide-react';
 import { loginUser, User as UserType } from '../services/authService.ts';
 
 interface LoginProps {
@@ -12,6 +12,20 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showSettings, setShowSettings] = useState(false);
+  const [scriptUrl, setScriptUrl] = useState('');
+
+  useEffect(() => {
+    const savedUrl = localStorage.getItem('google_script_url') || '';
+    setScriptUrl(savedUrl);
+  }, []);
+
+  const handleSaveSettings = (e: React.FormEvent) => {
+    e.preventDefault();
+    localStorage.setItem('google_script_url', scriptUrl);
+    setShowSettings(false);
+    setError(null);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,7 +47,53 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 relative">
+      <button 
+        onClick={() => setShowSettings(true)}
+        className="absolute top-6 right-6 p-3 bg-white border border-slate-200 rounded-2xl text-slate-400 hover:text-blue-600 hover:border-blue-200 transition-all shadow-sm"
+        title="Configuración"
+      >
+        <Settings className="w-6 h-6" />
+      </button>
+
+      {showSettings && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+              <h3 className="font-bold text-slate-800 flex items-center gap-2">
+                <Settings className="w-5 h-5 text-blue-600" />
+                Configuración del Sistema
+              </h3>
+              <button onClick={() => setShowSettings(false)} className="text-slate-400 hover:text-slate-600">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <form onSubmit={handleSaveSettings} className="p-8 space-y-6">
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">URL de Google Apps Script</label>
+                <textarea
+                  value={scriptUrl}
+                  onChange={(e) => setScriptUrl(e.target.value)}
+                  className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none text-sm font-mono text-slate-600 min-h-[100px]"
+                  placeholder="https://script.google.com/macros/s/.../exec"
+                  required
+                />
+                <p className="text-[11px] text-slate-400 leading-relaxed px-1">
+                  Pegue aquí la URL que obtuvo al "Implementar como aplicación web" en Google Apps Script.
+                </p>
+              </div>
+              <button
+                type="submit"
+                className="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-4 rounded-xl transition-all flex items-center justify-center gap-2"
+              >
+                <Save className="w-5 h-5" />
+                Guardar Configuración
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-md w-full bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
         <div className="p-8 bg-blue-600 text-white text-center">
           <div className="bg-white/20 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4">
