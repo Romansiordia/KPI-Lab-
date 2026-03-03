@@ -3,15 +3,36 @@ import { Sidebar } from './components/Sidebar.tsx';
 import { KPIs } from './components/KPIs.tsx';
 import { Charts } from './components/Charts.tsx';
 import { DataTable } from './components/DataTable.tsx';
+import { Login } from './components/Login.tsx';
 import { FinancialRecord } from './types.ts';
+import { User } from './services/authService.ts';
 import { processRawData, getBackupData } from './utils/dataProcessor.ts';
-import { LayoutDashboard, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Menu, X, LogOut } from 'lucide-react';
 
 const App: React.FC = () => {
+  const [user, setUser] = useState<User | null>(null);
   const [allData, setAllData] = useState<FinancialRecord[]>([]);
   const [filteredData, setFilteredData] = useState<FinancialRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  // Cargar sesión si existe
+  useEffect(() => {
+    const savedUser = localStorage.getItem('lab_user');
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
+  }, []);
+
+  const handleLoginSuccess = (userData: User) => {
+    setUser(userData);
+    localStorage.setItem('lab_user', JSON.stringify(userData));
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    localStorage.removeItem('lab_user');
+  };
 
   // Initialize with backup data
   useEffect(() => {
@@ -44,6 +65,10 @@ const App: React.FC = () => {
     });
     setFilteredData(filtered);
   };
+
+  if (!user) {
+    return <Login onLoginSuccess={handleLoginSuccess} />;
+  }
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden text-slate-900">
@@ -83,14 +108,21 @@ const App: React.FC = () => {
             </div>
           </div>
           
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-6">
             <div className="text-right">
-              <span className="text-xs text-slate-400 block uppercase tracking-wider font-bold">Estado de Datos</span>
-              <span className="text-sm font-semibold text-emerald-600 flex items-center gap-1">
-                <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-                Dataset Activo
+              <span className="text-xs text-slate-400 block uppercase tracking-wider font-bold">Usuario</span>
+              <span className="text-sm font-semibold text-slate-600 flex items-center gap-1">
+                {user.username}
               </span>
             </div>
+            <button 
+              onClick={handleLogout}
+              className="p-2 hover:bg-rose-50 text-rose-500 rounded-lg transition-colors flex items-center gap-2 text-sm font-bold"
+              title="Cerrar Sesión"
+            >
+              <LogOut size={20} />
+              <span className="hidden xl:inline">Salir</span>
+            </button>
           </div>
         </header>
 
